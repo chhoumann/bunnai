@@ -2,6 +2,12 @@
 
 have ai write commit messages for you.
 
+## installation
+
+```sh
+bun install -g bunnai
+```
+
 ## usage
 
 ### as a menu
@@ -12,7 +18,7 @@ insert the following custom command into your [lazygit](https://github.com/jesse
 
 ```yaml
 customCommands:
-    - key: "a"
+    - key: "<c-a>" # ctrl + a
         description: "pick AI commit"
         command: 'git commit -m "{{.Form.Msg}}"'
         context: "files"
@@ -20,7 +26,7 @@ customCommands:
             - type: "menuFromCommand"
             title: "ai Commits"
             key: "Msg"
-            command: "bun run /home/christian/projects/bunnai/index.ts"
+            command: "bunx bunnai"
             filter: '^(?P<number>\d+)\.\s(?P<message>.+)$'
             valueFormat: "{{ .message }}"
             labelFormat: "{{ .number }}: {{ .message | green }}"
@@ -32,7 +38,7 @@ this allows you to edit the commit message in vim after you've selected it from 
 
 ```yaml
 customCommands:
-    - key: "a"
+    - key: "<c-a>" # ctrl + a
       description: "Pick AI commit"
       command: 'echo "{{.Form.Msg}}" > .git/COMMIT_EDITMSG && vim .git/COMMIT_EDITMSG && git commit -F .git/COMMIT_EDITMSG'
       context: "files"
@@ -41,7 +47,7 @@ customCommands:
           - type: "menuFromCommand"
             title: "AI Commits"
             key: "Msg"
-            command: "bun run /home/christian/projects/bunnai/index.ts"
+            command: "bunx bunnai"
             filter: '^(?P<number>\d+)\.\s(?P<message>.+)$'
             valueFormat: "{{ .message }}"
             labelFormat: "{{ .number }}: {{ .message | green }}"
