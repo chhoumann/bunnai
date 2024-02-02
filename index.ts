@@ -1,20 +1,29 @@
 import OpenAI from "openai";
-import { $, env, file } from "bun";
+import { $, env, file, argv } from "bun";
+import dotenv from "dotenv";
 
-const openai_api_key = env.OPENAI_API_KEY;
+const [_, self, target_dir] = argv;
+
+const this_dir = self.replace("/index.ts", "");
+$.cwd(this_dir);
+dotenv.config();
+
+const openai_api_key = process.env.OPENAI_API_KEY;
 
 if (!openai_api_key) {
     console.error("OPENAI_API_KEY is not set");
     process.exit(1);
 }
 
+const template = await file(`${this_dir}/template.md`).text();
+
 const oai = new OpenAI({ apiKey: openai_api_key });
 
-const working_dir = await $`pwd`.text();
+const diff = await $`git diff --cached ${target_dir}`.quiet().text();
 
-const diff = await $`git diff --cached`.quiet().text();
-
-const template = await file(`./template.md`).text();
+if (diff.trim().length === 0) {
+    process.exit(1)
+}
 
 const rendered_template = template.replace("{{diff}}", diff);
 
@@ -34,4 +43,4 @@ const description = await oai.chat.completions.create({
     response_format: { type: "text" },
 });
 
-console.log(description.choices[0].message.content);
+console.log(description.choices[0].message.content?.trim());
