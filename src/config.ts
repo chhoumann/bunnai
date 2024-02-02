@@ -73,7 +73,7 @@ export async function showConfigUI() {
                     label: "OpenAI API Key",
                     value: "OPENAI_API_KEY",
                     hint: hasOwn<Config, keyof Config>(config, "OPENAI_API_KEY")
-                        ? "sk-..." + config.OPENAI_API_KEY.slice(-3)
+                        ? `sk-...${config.OPENAI_API_KEY.slice(-3)}`
                         : "not set",
                 },
                 {
@@ -119,7 +119,8 @@ export async function showConfigUI() {
         }
 
         showConfigUI();
-    } catch (error: any) {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+}  catch (error: any) {
         console.error(`\n${error.message}\n`);
     }
 }

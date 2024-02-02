@@ -2,6 +2,8 @@
 
 have ai write commit messages for you.
 
+
+
 ## installation
 
 ```sh

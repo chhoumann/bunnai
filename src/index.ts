@@ -28,7 +28,7 @@ const config = command(
                 return process.exit(1);
             }
 
-            if (mode == "set") {
+            if (mode === "set") {
                 await setConfigs(
                     keyValues.map(
                         (kv: string) => kv.split("=") as [string, string]
