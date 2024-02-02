@@ -22,7 +22,7 @@ const oai = new OpenAI({ apiKey: openai_api_key });
 const diff = await $`git diff --cached ${target_dir}`.quiet().text();
 
 if (diff.trim().length === 0) {
-    process.exit(1)
+    process.exit(1);
 }
 
 const rendered_template = template.replace("{{diff}}", diff);
