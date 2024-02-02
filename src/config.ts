@@ -1,13 +1,23 @@
 import path from "path";
 import os from "os";
 import { template as defaultTemplate } from "./template";
+import * as p from "@clack/prompts";
+import OpenAI from "openai";
+import { $ } from "bun";
+
+function hasOwn<T extends object, K extends PropertyKey>(
+    obj: T,
+    key: K
+): obj is T & Record<K, unknown> {
+    return key in obj && Object.prototype.hasOwnProperty.call(obj, key);
+}
 
 const configPath = path.join(os.homedir(), ".bunnai");
 
 export interface Config {
-    OPENAI_API_KEY?: string;
-    model?: string;
-    promptTemplate?: string;
+    OPENAI_API_KEY: string;
+    model: string;
+    promptTemplate: string;
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -32,10 +42,10 @@ export async function readConfigFile(): Promise<Config> {
 }
 
 function validateKeys(keys: string[]): asserts keys is (keyof Config)[] {
-    const config = Object.keys(DEFAULT_CONFIG);
+    const configKeys = Object.keys(DEFAULT_CONFIG);
 
     for (const key of keys) {
-        if (!config.includes(key)) {
+        if (!configKeys.includes(key)) {
             throw new Error(`Invalid config property: ${key}`);
         }
     }
@@ -51,4 +61,80 @@ export async function setConfigs(keyValues: [key: string, value: string][]) {
     }
 
     await Bun.write(configPath, JSON.stringify(config));
+}
+
+export async function showConfigUI() {
+    try {
+        const config = await readConfigFile();
+
+        const choice = (await p.select({
+            message: "set config",
+            options: [
+                {
+                    label: "OpenAI API Key",
+                    value: "OPENAI_API_KEY",
+                    hint: hasOwn<Config, keyof Config>(config, "OPENAI_API_KEY")
+                        ? "sk-..." + config.OPENAI_API_KEY.slice(-3)
+                        : "not set",
+                },
+                {
+                    label: "Model",
+                    value: "model",
+                    hint: config.model,
+                },
+            ],
+        })) as keyof Config | "cancel" | symbol;
+
+        if (p.isCancel(choice)) {
+            return;
+        }
+
+        if (choice === "OPENAI_API_KEY") {
+            const apiKey = await p.text({
+                message: "OpenAI API Key",
+                initialValue: config.OPENAI_API_KEY,
+            });
+
+            setConfigs([["OPENAI_API_KEY", apiKey as string]]);
+        } else if (choice === "model") {
+            const model = await p.select({
+                message: "Model",
+                options: (
+                    await getModels()
+                ).map((model) => ({
+                    label: model,
+                    value: model,
+                })),
+                initialValue: config.model,
+            });
+
+            setConfigs([["model", model as string]]);
+        } else if (choice === "promptTemplate") {
+            $`echo ${config.promptTemplate} > /tmp/bunnai_template`;
+            $`open /tmp/bunnai_template`;
+        }
+
+        if (choice === "cancel") {
+            return;
+        }
+
+        showConfigUI();
+    } catch (error: any) {
+        console.error(`\n${error.message}\n`)
+    }
+}
+
+async function getModels() {
+    const apiKey = (await readConfigFile()).OPENAI_API_KEY;
+
+    if (!apiKey) {
+        throw new Error("OPENAI_API_KEY is not set");
+    }
+
+    const oai = new OpenAI({
+        apiKey,
+    });
+
+    const models = await oai.models.list();
+    return models.data.map((model) => model.id);
 }

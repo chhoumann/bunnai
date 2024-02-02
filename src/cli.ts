@@ -1,6 +1,6 @@
 import { cli, command } from "cleye";
 import { version } from "../package.json";
-import { setConfigs } from "./config";
+import { setConfigs, showConfigUI } from "./config";
 
 const config = command(
     {
@@ -12,6 +12,11 @@ const config = command(
     (argv) => {
         (async () => {
             const [mode, ...keyValues] = argv._;
+
+            if (!mode) {
+                await showConfigUI();
+                return;
+            }
 
             if (!keyValues.length) {
                 console.error(
