@@ -1,5 +1,6 @@
 {
-  "name": "bunnai",
+  "name": "@chhoumann/bunnai",
+  "description": "let ai write commit messages for you",
   "version": "1.0.0",
   "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
   "repository": {
@@ -14,7 +15,9 @@
     "dotenv": "^16.4.1",
     "typescript": "^5.0.0"
   },
-  "bin": "dist/index.js",
+  "bin": {
+    "bunnai": "dist/index.js"
+  },
   "bugs": "https://github.com/chhoumann/bunnai/issues",
   "files": [
     "dist"
@@ -22,11 +25,15 @@
   "homepage": "https://bagerbach.com",
   "license": "MIT",
   "scripts": {
+    "start": "bun run src/index.ts",
     "build": "bun run build.mjs",
     "prepublishOnly": "bun run build",
     "release": "bumpp && npm publish",
     "lint": "biome check src",
-    "format": "biome format src --write"
+    "lint:fix": "biome format src --write"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "cleye": "^1.3.2"
+  }
 }

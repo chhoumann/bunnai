@@ -35,7 +35,7 @@ const response = await fetch("https://api.openai.com/v1/chat/completions", {
                 content: rendered_template,
             },
         ],
-        model: "gpt-4-1106-preview",
+        model: "gpt-4-0125-preview",
         response_format: { type: "text" },
     }),
     headers: {
