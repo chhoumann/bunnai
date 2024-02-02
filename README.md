@@ -1,15 +1,48 @@
 # bunnai
 
-To install dependencies:
+have ai write commit messages for you.
 
-```bash
-bun install
+## usage
+
+### as a menu
+
+this creates a menu of commit messages based on the diff between the current branch and master.
+
+insert the following custom command into your [lazygit](https://github.com/jesseduffield/lazygit) config file:
+
+```yaml
+customCommands:
+    - key: "a"
+        description: "pick AI commit"
+        command: 'git commit -m "{{.Form.Msg}}"'
+        context: "files"
+        prompts:
+            - type: "menuFromCommand"
+            title: "ai Commits"
+            key: "Msg"
+            command: "bun run /home/christian/projects/bunnai/index.ts"
+            filter: '^(?P<number>\d+)\.\s(?P<message>.+)$'
+            valueFormat: "{{ .message }}"
+            labelFormat: "{{ .number }}: {{ .message | green }}"
 ```
 
-To run:
+### with vim
 
-```bash
-bun run index.ts
+this allows you to edit the commit message in vim after the menu is created.
+
+```yaml
+customCommands:
+    - key: "a"
+      description: "Pick AI commit"
+      command: 'echo "{{.Form.Msg}}" > .git/COMMIT_EDITMSG && vim .git/COMMIT_EDITMSG && git commit -F .git/COMMIT_EDITMSG'
+      context: "files"
+      subprocess: true
+      prompts:
+          - type: "menuFromCommand"
+            title: "AI Commits"
+            key: "Msg"
+            command: "bun run /home/christian/projects/bunnai/index.ts"
+            filter: '^(?P<number>\d+)\.\s(?P<message>.+)$'
+            valueFormat: "{{ .message }}"
+            labelFormat: "{{ .number }}: {{ .message | green }}"
 ```
-
-This project was created using `bun init` in bun v1.0.25. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
