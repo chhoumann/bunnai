@@ -2,11 +2,13 @@ import OpenAI from "openai";
 import { $, env, file, argv } from "bun";
 import dotenv from "dotenv";
 
-const [_, self, target_dir] = argv;
+const [_, self] = argv;
 
 const this_dir = self.replace("/index.ts", "");
 $.cwd(this_dir);
 dotenv.config();
+
+const target_dir = (await $`pwd`.text()).trim();
 
 const openai_api_key = process.env.OPENAI_API_KEY;
 
