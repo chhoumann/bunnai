@@ -5,7 +5,13 @@ have ai write commit messages for you.
 ## installation
 
 ```sh
-bun install -g bunnai
+bun install -g @chhoumann/bunnai
+```
+
+set up with your openai api key & preferred model:
+
+```sh
+bunnai config
 ```
 
 ## usage
