@@ -60,3 +60,8 @@ customCommands:
             valueFormat: "{{ .message }}"
             labelFormat: "{{ .number }}: {{ .message | green }}"
 ```
+
+
+## acknowledgements
+check out these other projects that inspired this one:
+- https://github.com/BuilderIO/ai-shell
