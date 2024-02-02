@@ -1,6 +1,6 @@
 {
   "name": "bunnai",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
   "repository": {
     "type": "git",
@@ -30,5 +30,8 @@
     "format": "biome format src --write"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "bun": "^1.0.25"
+  }
 }
