@@ -1,15 +1,37 @@
 {
   "name": "bunnai",
-  "module": "index.ts",
+  "version": "1.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
   "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "build": "bun run build.mjs",
+    "prepublishOnly": "bun run build",
+    "release": "bumpp && npm publish",
+    "lint": "biome check src",
+    "format": "biome format src --write"
   },
-  "peerDependencies": {
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "homepage": "https://bagerbach.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chhoumann/bunnai"
+  },
+  "bugs": "https://github.com/chhoumann/bunnai/issues",
+  "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "@types/bun": "latest",
+    "bumpp": "^9.3.0",
+    "bun-plugin-dts": "^0.2.1",
+    "dotenv": "^16.4.1",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.4.1",
     "openai": "^4.26.0"
   }
 }
