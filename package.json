@@ -1,28 +1,12 @@
 {
   "name": "bunnai",
-  "version": "1.0.4",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "bin": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "build": "bun run build.mjs",
-    "prepublishOnly": "bun run build",
-    "release": "bumpp && npm publish",
-    "lint": "biome check src",
-    "format": "biome format src --write"
-  },
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "homepage": "https://bagerbach.com",
+  "version": "1.0.5",
+  "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/chhoumann/bunnai"
   },
-  "bugs": "https://github.com/chhoumann/bunnai/issues",
-  "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
+  "main": "dist/index.js",
   "devDependencies": {
     "@biomejs/biome": "^1.5.3",
     "@types/bun": "latest",
@@ -31,7 +15,20 @@
     "dotenv": "^16.4.1",
     "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "openai": "^4.26.0"
-  }
+  "bin": "dist/index.js",
+  "bugs": "https://github.com/chhoumann/bunnai/issues",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://bagerbach.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "bun run build.mjs",
+    "prepublishOnly": "bun run build",
+    "release": "bumpp && npm publish",
+    "lint": "biome check src",
+    "format": "biome format src --write"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
 }
