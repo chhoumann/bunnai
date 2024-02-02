@@ -1,8 +1,9 @@
 # bunnai
 
-have ai write commit messages for you.
+have ai write commit messages for you in [lazygit](https://github.com/jesseduffield/lazygit).
 
-
+uses openai to generate commit message suggestions based on the diff between the current branch and master.
+then you can select a commit message from the list and use it to commit your changes.
 
 ## installation
 
