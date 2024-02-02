@@ -1,6 +1,5 @@
 import path from "path";
 import os from "os";
-import { template as defaultTemplate } from "./template";
 import * as p from "@clack/prompts";
 import OpenAI from "openai";
 
@@ -16,13 +15,11 @@ const configPath = path.join(os.homedir(), ".bunnai");
 export interface Config {
     OPENAI_API_KEY: string;
     model: string;
-    promptTemplate: string;
 }
 
 const DEFAULT_CONFIG: Config = {
     OPENAI_API_KEY: "",
     model: "gpt-4-0125-preview",
-    promptTemplate: defaultTemplate,
 };
 
 export async function readConfigFile(): Promise<Config> {

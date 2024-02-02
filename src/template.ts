@@ -14,8 +14,10 @@ Please suggest 10 commit messages, given the following diff:
 
 **Commit Message Examples:**
 
--   fix(authentication): add password regex pattern
--   feat(storage): add new test cases
+-   fix: add password regex pattern
+-   feat: add new test cases
+-   style: remove unused imports
+-   refactor: extract common code to \`utils/wait.ts\`
 
 **Instructions:**
 
@@ -23,6 +25,7 @@ Please suggest 10 commit messages, given the following diff:
 -   Think about the impact of these changes on the project (e.g., bug fixes, new features, performance improvements, code refactoring, documentation updates). It's critical to my career you abstract the changes to a higher level and not just describe the code changes.
 -   Generate commit messages that accurately describe these changes, ensuring they are helpful to someone reading the project's history.
 -   Remember, a well-crafted commit message can significantly aid in the maintenance and understanding of the project over time.
+-   If multiple changes are present, make sure you capture them all in each commit message.
 
 Write your 10 commit messages below, in the format \`1. <message>\`, \`2. <message>\`, etc.:
 `;

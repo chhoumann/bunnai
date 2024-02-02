@@ -17,11 +17,6 @@ export async function run() {
 		process.exit(1);
 	}
 
-	if (!config.promptTemplate) {
-		console.error("Prompt template is not set");
-		process.exit(1);
-	}
-
 	const diff = await $`git diff --cached ${target_dir}`.quiet().text();
 
 	if (diff.trim().length === 0) {
