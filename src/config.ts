@@ -3,7 +3,6 @@ import os from "os";
 import { template as defaultTemplate } from "./template";
 import * as p from "@clack/prompts";
 import OpenAI from "openai";
-import { $ } from "bun";
 
 function hasOwn<T extends object, K extends PropertyKey>(
     obj: T,
@@ -82,6 +81,10 @@ export async function showConfigUI() {
                     value: "model",
                     hint: config.model,
                 },
+                {
+                    label: "Cancel",
+                    value: "cancel",
+                },
             ],
         })) as keyof Config | "cancel" | symbol;
 
@@ -95,7 +98,7 @@ export async function showConfigUI() {
                 initialValue: config.OPENAI_API_KEY,
             });
 
-            setConfigs([["OPENAI_API_KEY", apiKey as string]]);
+            await setConfigs([["OPENAI_API_KEY", apiKey as string]]);
         } else if (choice === "model") {
             const model = await p.select({
                 message: "Model",
@@ -108,10 +111,7 @@ export async function showConfigUI() {
                 initialValue: config.model,
             });
 
-            setConfigs([["model", model as string]]);
-        } else if (choice === "promptTemplate") {
-            $`echo ${config.promptTemplate} > /tmp/bunnai_template`;
-            $`open /tmp/bunnai_template`;
+            await setConfigs([["model", model as string]]);
         }
 
         if (choice === "cancel") {
@@ -120,7 +120,7 @@ export async function showConfigUI() {
 
         showConfigUI();
     } catch (error: any) {
-        console.error(`\n${error.message}\n`)
+        console.error(`\n${error.message}\n`);
     }
 }
 
