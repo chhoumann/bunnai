@@ -5,53 +5,49 @@ import { setConfigs, showConfigUI } from "./config";
 import { run } from "./run";
 
 const config = command(
-    {
-        name: "config",
-        help: {
-            description: "Configure bunnai",
-        },
-    },
-    (argv) => {
-        (async () => {
-            const [mode, ...keyValues] = argv._;
+	{
+		name: "config",
+		help: {
+			description: "Configure bunnai",
+		},
+	},
+	(argv) => {
+		(async () => {
+			const [mode, ...keyValues] = argv._;
 
-            if (!mode) {
-                await showConfigUI();
-                return;
-            }
+			if (!mode) {
+				await showConfigUI();
+				return;
+			}
 
-            if (!keyValues.length) {
-                console.error(
-                    `Error: Missing required parameter "key=value"\n`
-                );
-                argv.showHelp();
-                return process.exit(1);
-            }
+			if (!keyValues.length) {
+				console.error(`Error: Missing required parameter "key=value"\n`);
+				argv.showHelp();
+				return process.exit(1);
+			}
 
-            if (mode === "set") {
-                await setConfigs(
-                    keyValues.map(
-                        (kv: string) => kv.split("=") as [string, string]
-                    )
-                );
+			if (mode === "set") {
+				await setConfigs(
+					keyValues.map((kv: string) => kv.split("=") as [string, string]),
+				);
 
-                return;
-            }
+				return;
+			}
 
-            throw new Error(`Invalid mode: ${mode}`);
-        })();
-    }
+			throw new Error(`Invalid mode: ${mode}`);
+		})();
+	},
 );
 
 export const CLI = cli(
-    {
-        name: "bunnai",
-        version,
-        commands: [config],
-    },
-    (argv) => {
-        (async () => {
-            run();
-        })();
-    }
+	{
+		name: "bunnai",
+		version,
+		commands: [config],
+	},
+	() => {
+		(async () => {
+			run();
+		})();
+	},
 );
