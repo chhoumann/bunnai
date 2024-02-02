@@ -116,8 +116,8 @@ export async function showConfigUI() {
         }
 
         showConfigUI();
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-}  catch (error: any) {
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    } catch (error: any) {
         console.error(`\n${error.message}\n`);
     }
 }
