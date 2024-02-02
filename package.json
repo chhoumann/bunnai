@@ -6,15 +6,28 @@
     "type": "git",
     "url": "https://github.com/chhoumann/bunnai"
   },
-  "bugs": "https://github.com/chhoumann/bunnai/issues",
-  "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
+  "main": "dist/index.js",
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "@types/bun": "latest",
+    "bumpp": "^9.3.0",
+    "dotenv": "^16.4.1",
     "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "dotenv": "^16.4.1",
-    "openai": "^4.26.0"
-  }
+  "bin": "dist/index.js",
+  "bugs": "https://github.com/chhoumann/bunnai/issues",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://bagerbach.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "bun run build.mjs",
+    "prepublishOnly": "bun run build",
+    "release": "bumpp && npm publish",
+    "lint": "biome check src",
+    "format": "biome format src --write"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}
