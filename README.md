@@ -45,11 +45,13 @@ customCommands:
 
 this allows you to edit the commit message in vim after you've selected it from the menu.
 
+abort comitting by deleting the commit message in vim.
+
 ```yaml
 customCommands:
     - key: "<c-a>" # ctrl + a
       description: "Pick AI commit"
-      command: 'echo "{{.Form.Msg}}" > .git/COMMIT_EDITMSG && vim .git/COMMIT_EDITMSG && git commit -F .git/COMMIT_EDITMSG'
+      command: 'echo "{{.Form.Msg}}" > .git/COMMIT_EDITMSG && vim .git/COMMIT_EDITMSG && [ -s .git/COMMIT_EDITMSG ] && git commit -F .git/COMMIT_EDITMSG || echo "Commit message is empty, commit aborted."'
       context: "files"
       subprocess: true
       prompts:
@@ -62,7 +64,8 @@ customCommands:
             labelFormat: "{{ .number }}: {{ .message | green }}"
 ```
 
-
 ## acknowledgements
+
 check out these other projects that inspired this one:
-- https://github.com/BuilderIO/ai-shell
+
+-   https://github.com/BuilderIO/ai-shell
