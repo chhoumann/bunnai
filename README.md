@@ -28,7 +28,7 @@ customCommands:
 
 ### with vim
 
-this allows you to edit the commit message in vim after the menu is created.
+this allows you to edit the commit message in vim after you've selected it from the menu.
 
 ```yaml
 customCommands:
