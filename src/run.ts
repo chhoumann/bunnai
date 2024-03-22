@@ -1,9 +1,22 @@
-import { $, type ShellOutput } from "bun";
+import { $ } from "bun";
 import OpenAI from "openai";
 import { readConfigFile } from "./config";
+import simpleGit from "simple-git";
 
 interface RunOptions {
 	verbose?: boolean;
+}
+
+async function getStagedDiff(target_dir: string) {
+	try {
+		const git = simpleGit(target_dir);
+		const diff = await git.diff(["--cached"]);
+
+		return diff;
+	} catch (error) {
+		console.error("Error getting git diff:", error);
+		throw error; // Re-throw the error after logging it
+	}
 }
 
 export async function run(options: RunOptions, templateName?: string) {
@@ -62,16 +75,7 @@ export async function run(options: RunOptions, templateName?: string) {
 		process.exit(1);
 	}
 
-	const diffCommand = (await $`git diff --cached "${target_dir}"`
-		.quiet()
-		.catch((reason) => console.error(reason))
-		.then((v) => v)) as ShellOutput;
-
-	if (options.verbose) {
-		console.debug("Git diff stderr:\n", diffCommand.stderr.toString());
-	}
-
-	const diff = diffCommand.stdout.toString();
+	const diff = await getStagedDiff(target_dir);
 	if (options.verbose) {
 		console.debug("Git diff retrieved:\n", diff);
 	}
