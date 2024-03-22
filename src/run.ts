@@ -1,16 +1,31 @@
 import { $ } from "bun";
-import { template as defaultTemplate } from "./template";
 import OpenAI from "openai";
-import { readConfigFile, templatePath } from "./config";
+import { readConfigFile } from "./config";
 
-export async function run() {
+export async function run(templateName?: string) {
 	const config = await readConfigFile();
 
-	const templateFile = Bun.file(templatePath);
-	const template = (await templateFile.exists())
-		? await templateFile.text()
-		: defaultTemplate;
+	let templateFilePath: string;
+	if (templateName) {
+		if (!Object.prototype.hasOwnProperty.call(config.templates, templateName)) {
+			console.error(
+				`Error: Template '${templateName}' does not exist in the configuration.`,
+			);
+			process.exit(1);
+		}
+		templateFilePath = config.templates[templateName];
+	} else {
+		templateFilePath = config.templates.default;
+	}
 
+	const templateFile = Bun.file(templateFilePath);
+	if (!(await templateFile.exists())) {
+		console.error(
+			`Error: The template file '${templateFilePath}' does not exist.`,
+		);
+		process.exit(1);
+	}
+	const template = await templateFile.text();
 	const target_dir = (await $`pwd`.text()).trim();
 
 	if (!config.OPENAI_API_KEY) {

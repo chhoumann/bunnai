@@ -5,6 +5,49 @@ import OpenAI from "openai";
 import { spawn } from "child_process";
 import { template } from "./template";
 
+async function editFile(filePath: string, onExit: () => void) {
+	let editor =
+		process.env.EDITOR ||
+		(await p.select({
+			message: "Select an editor",
+			options: [
+				{
+					label: "vim",
+					value: "vim",
+				},
+				{
+					label: "nano",
+					value: "nano",
+				},
+				{
+					label: "cancel",
+					value: "cancel",
+				},
+			],
+		}));
+
+	if (!editor || typeof editor !== "string" || editor === "cancel") {
+		return;
+	}
+
+	let additionalArgs: string[] = [];
+	if (editor.includes("code")) {
+		editor = "code";
+		additionalArgs = ["--wait"];
+	}
+
+	const child = spawn(editor, [filePath, ...additionalArgs], {
+		stdio: "inherit",
+	});
+
+	await new Promise((resolve) => {
+		// biome-ignore lint/suspicious/noExplicitAny: unknown types to me
+		child.on("exit", async (_e: any, _code: any) => {
+			resolve(await onExit());
+		});
+	});
+}
+
 function hasOwn<T extends object, K extends PropertyKey>(
 	obj: T,
 	key: K,
@@ -13,16 +56,19 @@ function hasOwn<T extends object, K extends PropertyKey>(
 }
 
 export const configPath = path.join(os.homedir(), ".bunnai");
-export const templatePath = path.join(os.homedir(), ".bunnai-template");
 
 export interface Config {
 	OPENAI_API_KEY: string;
 	model: string;
+	templates: Record<string, string>;
 }
 
 const DEFAULT_CONFIG: Config = {
 	OPENAI_API_KEY: "",
 	model: "gpt-4-0125-preview",
+	templates: {
+		default: path.join(os.homedir(), ".bunnai-template"),
+	},
 };
 
 export async function readConfigFile(): Promise<Config> {
@@ -50,13 +96,27 @@ function validateKeys(keys: string[]): asserts keys is (keyof Config)[] {
 	}
 }
 
-export async function setConfigs(keyValues: [key: string, value: string][]) {
+export async function cleanUpTemplates(config: Config): Promise<Config> {
+	for (const templateName in config.templates) {
+		const templatePath = config.templates[templateName];
+		const fileExists = await Bun.file(templatePath).exists();
+		if (!fileExists) {
+			delete config.templates[templateName];
+		}
+	}
+	return config;
+}
+
+export async function setConfigs(
+	keyValues: [key: keyof Config, value: Config[keyof Config]][],
+) {
 	const config = await readConfigFile();
 
 	validateKeys(keyValues.map(([key]) => key));
 
 	for (const [key, value] of keyValues) {
-		config[key as keyof Config] = value;
+		// @ts-ignore
+		config[key] = value;
 	}
 
 	await Bun.write(configPath, JSON.stringify(config));
@@ -64,7 +124,7 @@ export async function setConfigs(keyValues: [key: string, value: string][]) {
 
 export async function showConfigUI() {
 	try {
-		const config = await readConfigFile();
+		const config = await cleanUpTemplates(await readConfigFile());
 
 		const choice = (await p.select({
 			message: "set config",
@@ -117,41 +177,48 @@ export async function showConfigUI() {
 
 			await setConfigs([["model", model as string]]);
 		} else if (choice === "template") {
-			if (!(await Bun.file(templatePath).exists())) {
-				await Bun.write(templatePath, template);
+			const templateChoice = (await p.select({
+				message: "Choose a template to edit",
+				options: [
+					...Object.keys(config.templates).map((name) => ({
+						label: name,
+						value: name,
+					})),
+					{ label: "Add new template", value: "add_new" },
+					{ label: "Cancel", value: "cancel" },
+				],
+			})) as string;
+
+			if (templateChoice === "add_new") {
+				const newTemplateName = (await p.text({
+					message: "New template name",
+				})) as string;
+
+				const newTemplatePath = path.join(
+					os.homedir(),
+					`.bunnai-template-${newTemplateName}`,
+				);
+
+				await Bun.write(newTemplatePath, template);
+				config.templates[newTemplateName] = newTemplatePath;
+
+				await editFile(newTemplatePath, async () => {
+					console.log(`Prompt template '${newTemplateName}' updated`);
+					await setConfigs([["templates", config.templates]]);
+					process.exit(0);
+				});
+			} else if (templateChoice !== "cancel") {
+				const templatePath = config.templates[templateChoice];
+
+				if (!(await Bun.file(templatePath).exists())) {
+					await Bun.write(templatePath, template);
+				}
+
+				await editFile(templatePath, () => {
+					console.log(`Prompt template '${templateChoice}' updated`);
+					process.exit(0);
+				});
 			}
-
-			const editor =
-				process.env.EDITOR ||
-				(await p.select({
-					message: "Select an editor",
-					options: [
-						{
-							label: "vim",
-							value: "vim",
-						},
-						{
-							label: "nano",
-							value: "nano",
-						},
-						{
-							label: "cancel",
-							value: "cancel",
-						},
-					],
-				}));
-
-			if (!editor || typeof editor !== "string" || editor === "cancel") {
-				return;
-			}
-
-			const child = spawn(editor, [templatePath], { stdio: "inherit" });
-
-			// biome-ignore lint/suspicious/noExplicitAny: unknown types to me
-			child.on("exit", (_e: any, _code: any) => {
-				console.log("Prompt template updated.");
-				process.exit(0);
-			});
 		}
 
 		if (choice === "cancel") {
@@ -159,7 +226,7 @@ export async function showConfigUI() {
 		}
 
 		showConfigUI();
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: unknown types to me
 	} catch (error: any) {
 		console.error(`\n${error.message}\n`);
 	}

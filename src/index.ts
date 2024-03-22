@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 import { cli, command } from "cleye";
 import { version } from "../package.json";
-import { setConfigs, showConfigUI } from "./config";
+import { setConfigs, showConfigUI, type Config } from "./config";
 import { run } from "./run";
+import { initialize } from "./utils";
 
 const config = command(
 	{
@@ -14,6 +15,7 @@ const config = command(
 	(argv) => {
 		(async () => {
 			const [mode, ...keyValues] = argv._;
+			await initialize();
 
 			if (!mode) {
 				await showConfigUI();
@@ -27,8 +29,16 @@ const config = command(
 			}
 
 			if (mode === "set") {
+				if (keyValues.includes("templates")) {
+					console.error("Error: Templates not settable");
+					return process.exit(1);
+				}
+
 				await setConfigs(
-					keyValues.map((kv: string) => kv.split("=") as [string, string]),
+					keyValues.map((kv: string) => {
+						const [key, value] = kv.split("=");
+						return [key, value] as [keyof Config, string];
+					}),
 				);
 
 				return;
@@ -44,10 +54,16 @@ export const CLI = cli(
 		name: "bunnai",
 		version,
 		commands: [config],
+		flags: {
+			template: String,
+		},
 	},
-	() => {
+	(argv) => {
 		(async () => {
-			run();
+			const { template } = argv.flags;
+			await initialize();
+
+			run(template);
 		})();
 	},
 );
