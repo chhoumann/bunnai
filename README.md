@@ -23,6 +23,9 @@ bunnai config
 
 ## usage
 
+you can specify custom templates. use `bunnai config` to edit the templates.
+when you invoke `bunnai`, you can specify a template name to use with `--template`.
+
 ### as a menu
 
 this creates a menu of commit messages based on the diff between the current branch and master.
