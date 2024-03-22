@@ -57,6 +57,7 @@ export const CLI = cli(
 		commands: [config],
 		flags: {
 			template: String,
+			verbose: Boolean,
 		},
 	},
 	(argv) => {
@@ -80,10 +81,16 @@ export const CLI = cli(
 				process.exit(1);
 			});
 
-			const { template } = argv.flags;
+			const { template, verbose } = argv.flags;
+
+			if (verbose) {
+				console.debug("Verbose mode enabled");
+				console.debug("Flags:", argv.flags);
+			}
+
 			await initialize();
 
-			await run(template);
+			await run({ verbose }, template);
 		})();
 	},
 );

@@ -2,8 +2,15 @@ import { $ } from "bun";
 import OpenAI from "openai";
 import { readConfigFile } from "./config";
 
-export async function run(templateName?: string) {
+interface RunOptions {
+	verbose?: boolean;
+}
+
+export async function run(options: RunOptions, templateName?: string) {
 	const config = await readConfigFile();
+	if (options.verbose) {
+		console.debug("Configuration loaded successfully.");
+	}
 
 	let templateFilePath: string;
 	if (templateName) {
@@ -14,8 +21,14 @@ export async function run(templateName?: string) {
 			process.exit(1);
 		}
 		templateFilePath = config.templates[templateName];
+		if (options.verbose) {
+			console.debug(`Using template: ${templateName}`);
+		}
 	} else {
 		templateFilePath = config.templates.default;
+		if (options.verbose) {
+			console.debug("Using default template.");
+		}
 	}
 
 	const templateFile = Bun.file(templateFilePath);
@@ -25,8 +38,19 @@ export async function run(templateName?: string) {
 		);
 		process.exit(1);
 	}
+	if (options.verbose) {
+		console.debug(`Template file found: ${templateFilePath}`);
+	}
+
 	const template = await templateFile.text();
+	if (options.verbose) {
+		console.debug("Template file read successfully.");
+	}
+
 	const target_dir = (await $`pwd`.text()).trim();
+	if (options.verbose) {
+		console.debug(`Target directory: ${target_dir}`);
+	}
 
 	if (!config.OPENAI_API_KEY) {
 		console.error("OPENAI_API_KEY is not set");
@@ -39,6 +63,9 @@ export async function run(templateName?: string) {
 	}
 
 	const diff = await $`git diff --cached "${target_dir}"`.quiet().text();
+	if (options.verbose) {
+		console.debug("Git diff retrieved.");
+	}
 
 	if (diff.trim().length === 0) {
 		console.error(`No changes to commit in ${target_dir}`);
@@ -46,12 +73,18 @@ export async function run(templateName?: string) {
 	}
 
 	const rendered_template = template.replace("{{diff}}", diff);
+	if (options.verbose) {
+		console.debug("Template rendered with git diff.");
+	}
 
 	const oai = new OpenAI({
 		apiKey: config.OPENAI_API_KEY,
 	});
 
 	try {
+		if (options.verbose) {
+			console.debug("Sending request to OpenAI...");
+		}
 		const response = await oai.chat.completions.create({
 			messages: [
 				{
@@ -67,6 +100,11 @@ export async function run(templateName?: string) {
 			model: config.model,
 		});
 
+		if (options.verbose) {
+			console.debug("Response received from OpenAI.");
+			console.debug(JSON.stringify(response, null, 2));
+		}
+
 		const content = response.choices[0].message.content;
 		if (!content) {
 			console.error("Failed to generate commit message");
@@ -74,6 +112,9 @@ export async function run(templateName?: string) {
 		}
 
 		console.log(content.trim());
+		if (options.verbose) {
+			console.debug("Commit message generated and outputted.");
+		}
 	} catch (error) {
 		console.error(`Failed to fetch from openai: ${error}`);
 		process.exit(1);
