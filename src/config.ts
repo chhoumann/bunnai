@@ -31,7 +31,7 @@ async function editFile(filePath: string, onExit: () => void) {
 	}
 
 	let additionalArgs: string[] = [];
-	if (editor.includes("code")) {
+	if (/^(.[/\\])?code(.exe)?(\s+--.+)*/i.test(editor)) {
 		editor = "code";
 		additionalArgs = ["--wait"];
 	}
