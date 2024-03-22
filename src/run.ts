@@ -38,7 +38,7 @@ export async function run(templateName?: string) {
 		process.exit(1);
 	}
 
-	const diff = await $`git diff --cached ${target_dir}`.quiet().text();
+	const diff = await $`git diff --cached "${target_dir}"`.quiet().text();
 
 	if (diff.trim().length === 0) {
 		console.error(`No changes to commit in ${target_dir}`);
