@@ -1,7 +1,7 @@
 {
   "name": "@chhoumann/bunnai",
   "description": "let ai write commit messages for you",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "author": "Christian Bager Bach Houmann <christian@bagerbach.com>",
   "publishConfig": {
     "access": "public"
