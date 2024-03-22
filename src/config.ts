@@ -40,10 +40,14 @@ async function editFile(filePath: string, onExit: () => void) {
 		stdio: "inherit",
 	});
 
-	await new Promise((resolve) => {
+	await new Promise((resolve, reject) => {
 		// biome-ignore lint/suspicious/noExplicitAny: unknown types to me
 		child.on("exit", async (_e: any, _code: any) => {
-			resolve(await onExit());
+			try {
+				resolve(await onExit());
+			} catch (error) {
+				reject(error);
+			}
 		});
 	});
 }
@@ -205,7 +209,6 @@ export async function showConfigUI() {
 				await editFile(newTemplatePath, async () => {
 					console.log(`Prompt template '${newTemplateName}' updated`);
 					await setConfigs([["templates", config.templates]]);
-					process.exit(0);
 				});
 			} else if (templateChoice !== "cancel") {
 				const templatePath = config.templates[templateChoice];
@@ -216,12 +219,11 @@ export async function showConfigUI() {
 
 				await editFile(templatePath, () => {
 					console.log(`Prompt template '${templateChoice}' updated`);
-					process.exit(0);
 				});
 			}
 		}
 
-		if (choice === "cancel") {
+		if (p.isCancel(choice)) {
 			return;
 		}
 
