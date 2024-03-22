@@ -62,14 +62,15 @@ export async function run(options: RunOptions, templateName?: string) {
 		process.exit(1);
 	}
 
-	const diffCommand = await $`git diff --cached "${target_dir}"`.quiet();
+	const buf = Buffer.alloc(25564);
+	const diffCommand = await $`git diff --cached "${target_dir}" 1> ${buf}`;
 	if (options.verbose) {
 		console.debug("Git diff stderr:\n", diffCommand.stderr.toString());
 	}
 
-	const diff = diffCommand.stdout.toString();
+	const diff = buf.toString();
 	if (options.verbose) {
-		console.debug("Git diff retrieved.");
+		console.debug("Git diff retrieved:\n", diff);
 	}
 
 	if (diff.trim().length === 0) {
