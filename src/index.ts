@@ -44,7 +44,8 @@ const config = command(
 				return;
 			}
 
-			throw new Error(`Invalid mode: ${mode}`);
+			console.error(`Error: Invalid mode: ${mode}`);
+			process.exit(1);
 		})();
 	},
 );
