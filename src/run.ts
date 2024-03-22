@@ -1,4 +1,4 @@
-import { $ } from "bun";
+import { $, type ShellOutput } from "bun";
 import OpenAI from "openai";
 import { readConfigFile } from "./config";
 
@@ -62,13 +62,16 @@ export async function run(options: RunOptions, templateName?: string) {
 		process.exit(1);
 	}
 
-	const buf = Buffer.alloc(25564);
-	const diffCommand = await $`git diff --cached "${target_dir}" 1> ${buf}`;
+	const diffCommand = (await $`git diff --cached "${target_dir}"`
+		.quiet()
+		.catch((reason) => console.error(reason))
+		.then((v) => v)) as ShellOutput;
+
 	if (options.verbose) {
 		console.debug("Git diff stderr:\n", diffCommand.stderr.toString());
 	}
 
-	const diff = buf.toString();
+	const diff = diffCommand.stdout.toString();
 	if (options.verbose) {
 		console.debug("Git diff retrieved:\n", diff);
 	}
