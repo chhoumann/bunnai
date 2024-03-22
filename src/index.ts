@@ -61,10 +61,29 @@ export const CLI = cli(
 	},
 	(argv) => {
 		(async () => {
+			process.on("unhandledRejection", (reason, promise) => {
+				console.error(
+					"Unhandled Rejection at:",
+					promise,
+					"reason:",
+					reason,
+					"\nPlease report this! https://github.com/chhoumann/bunnai/issues",
+				);
+				process.exit(1);
+			});
+
+			process.on("uncaughtException", (err) => {
+				console.error(
+					"Unhandled exception. Please report this! https://github.com/chhoumann/bunnai/issues",
+					err,
+				);
+				process.exit(1);
+			});
+
 			const { template } = argv.flags;
 			await initialize();
 
-			run(template);
+			await run(template);
 		})();
 	},
 );
