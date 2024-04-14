@@ -27,5 +27,7 @@ Please suggest 10 commit messages, given the following diff:
 -   Remember, a well-crafted commit message can significantly aid in the maintenance and understanding of the project over time.
 -   If multiple changes are present, make sure you capture them all in each commit message.
 
+Keep in mind you will suggest 10 commit messages. Only 1 will be used. It's better to push yourself (esp to synthesize to a higher level) and maybe wrong about some of the 10 commits because only one needs to be good. I'm looking for your best commit, not the best average commit. It's better to cover more scenarios than include a lot of overlap.
+
 Write your 10 commit messages below, in the format \`1. <message>\`, \`2. <message>\`, etc.:
 `;
